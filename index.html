@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapor Akademi Futsal — Maana Indonesia Futsal Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="screen-loading">
+  <img id="loadingLogo" alt="Logo Maana Indonesia Futsal Academy">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Memuat…</p>
+</div>
+
+
+
+<!-- ================= LOGIN SCREEN ================= -->
+<section id="screen-login">
+  <div class="login-pattern">
+    <svg viewBox="0 0 500 700" fill="none">
+      <rect x="10" y="10" width="480" height="680" rx="4" stroke="#E7EEF1" stroke-width="2"/>
+      <line x1="10" y1="350" x2="490" y2="350" stroke="#E7EEF1" stroke-width="2"/>
+      <circle cx="250" cy="350" r="90" stroke="#E7EEF1" stroke-width="2"/>
+      <circle cx="250" cy="350" r="4" fill="#E7EEF1"/>
+      <rect x="130" y="10" width="240" height="90" stroke="#E7EEF1" stroke-width="2"/>
+      <rect x="130" y="600" width="240" height="90" stroke="#E7EEF1" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="login-card" id="loginCard">
+    <img class="login-logo" id="loginLogo" alt="Logo Maana Indonesia Futsal Academy">
+    <p class="eyebrow">Maana Indonesia Futsal Academy</p>
+    <h2>Masuk ke Sistem Rapor</h2>
+    <div class="field"><label>Email</label><input type="email" id="loginEmail" autocomplete="username" placeholder="nama@email.com"></div>
+    <div class="field"><label>Kata Sandi</label><input type="password" id="loginPass" autocomplete="current-password"></div>
+    <div class="login-error" id="loginError"></div>
+    <button class="btn" id="loginBtn" type="button">Masuk →</button>
+    <button class="login-reset" id="forgotPass" type="button">Lupa kata sandi?</button>
+    <p class="login-note">Data tersimpan di Firebase (cloud) dan tersinkron di semua perangkat. Akun admin pertama dibuat lewat Firebase Console — lihat panduan pengaturan yang disertakan.</p>
+  </div>
+  <div class="login-card" id="setupCard" style="display:none">
+    <img class="login-logo" id="setupLogo" alt="Logo Maana Indonesia Futsal Academy">
+    <p class="eyebrow">Maana Indonesia Futsal Academy</p>
+    <h2>Konfigurasi Diperlukan</h2>
+    <p style="font-size:13.5px;line-height:1.6;color:var(--ink-soft)">Aplikasi ini belum terhubung ke Firebase. Buka file HTML ini, cari variabel <b>firebaseConfig</b> di bagian atas skrip, lalu isi dengan konfigurasi proyek Firebase Anda (Project Settings → Your apps → SDK setup and configuration).</p>
+    <p style="font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin-top:10px">Setelah itu, buat akun admin pertama melalui Firebase Console (Authentication → Add user, lalu tambahkan dokumennya di Firestore koleksi <b>users</b>).</p>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div class="topbar__brand" id="topbarBrand"><img class="brand-logo" id="topbarLogo" alt="Logo MIFA"><span id="topbarBrandText">Maana Indonesia Futsal Academy</span></div>
+    <div class="topbar__user">
+      <span class="badge" id="roleBadge">–</span>
+      <span class="uname" id="userName">–</span>
+      <button class="btn btn--ghost btn--sm" id="logoutBtn" type="button">Keluar</button>
+    </div>
+  </div>
+  <div class="progress-rail"><div class="progress-rail__bar" id="progressBar"></div></div>
+  <nav class="slide-nav" id="slideNav"></nav>
+
+  <main class="track" id="track">
+
+    <!-- ================= BERANDA (role-aware) ================= -->
+    <section class="slide" id="slide-beranda">
+      <div class="hero-pattern">
+        <svg viewBox="0 0 500 700" fill="none">
+          <rect x="10" y="10" width="480" height="680" rx="4" stroke="#E7EEF1" stroke-width="2"/>
+          <line x1="10" y1="350" x2="490" y2="350" stroke="#E7EEF1" stroke-width="2"/>
+          <circle cx="250" cy="350" r="90" stroke="#E7EEF1" stroke-width="2"/>
+          <circle cx="250" cy="350" r="4" fill="#E7EEF1"/>
+          <path d="M180 100 A70 70 0 0 0 320 100" stroke="#E7EEF1" stroke-width="2"/>
+          <path d="M180 600 A70 70 0 0 1 320 600" stroke="#E7EEF1" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="slide-inner">
+        <p class="eyebrow" id="berandaEyebrow">Panel</p>
+        <h1 class="hero-title" id="berandaTitle">Selamat datang</h1>
+        <p class="hero-desc" id="berandaDesc">–</p>
+        <div class="hero-cta">
+          <button class="btn" id="berandaCta">Lanjutkan →</button>
+          <div class="scroll-hint">
+            Geser ke samping untuk menjelajah
+            <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M1 5H15M15 5L11 1M15 5L11 9" stroke="currentColor" stroke-width="1.4"/></svg>
+          </div>
+        </div>
+        <div class="hero-stats" id="berandaStats"></div>
+      </div>
+    </section>
+
+    <!-- ================= ADMIN: KELOLA PELATIH ================= -->
+    <section class="slide" id="slide-pelatih">
+      <div class="slide-inner">
+        <div class="section-head">
+          <p class="eyebrow">Admin — Akun Pelatih</p>
+          <h2>Kelola Pelatih</h2>
+          <p>Tambahkan akun untuk setiap pelatih. Pelatih hanya dapat mengisi presensi &amp; penilaian untuk siswa yang ditugaskan kepadanya.</p>
+        </div>
+        <div class="card">
+          <div class="card__title">Tambah / Sunting Akun Pelatih</div>
+          <div class="pelatih-form">
+            <div class="field"><label>Nama Pelatih</label><input type="text" id="pfNama" placeholder="Cth: Coach Dedi"></div>
+            <div class="field"><label>Email</label><input type="email" id="pfEmail" placeholder="coach@email.com"></div>
+            <div class="field"><label>Kata Sandi Awal</label><input type="text" id="pfPassword" placeholder="Minimal 6 karakter"></div>
+            <button class="btn" id="savePelatih" type="button">Simpan</button>
+          </div>
+          <p class="readonly-note" id="pfEditNote" style="display:none;margin-top:12px">Sedang menyunting akun. Email &amp; kata sandi awal tidak dapat diubah dari sini — pelatih dapat menggunakan tautan "Lupa kata sandi?" pada halaman masuk.</p>
+          <div style="margin-top:10px"><button class="btn btn--ghost btn--sm" id="clearPelatihForm" type="button">+ Akun Baru</button> <span class="save-msg" id="pelatihMsg">Tersimpan</span></div>
+        </div>
+        <div class="pelatih-list" id="pelatihList"></div>
+      </div>
+    </section>
+
+    <!-- ================= ADMIN: KELOLA SISWA (biodata) ================= -->
+    <section class="slide" id="slide-siswa">
+      <div class="slide-inner">
+        <div class="section-head">
+          <p class="eyebrow">Admin — Data Siswa</p>
+          <h2>Kelola Siswa</h2>
+          <p>Lengkapi identitas siswa beserta foto 3×4, lalu tugaskan siswa kepada seorang pelatih agar dapat diisi rapornya.</p>
+        </div>
+
+        <div class="biodata-layout">
+          <div>
+            <label class="photo-frame" id="photoFrame">
+              <div class="photo-frame__empty" id="photoEmpty">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z" stroke="#5C6975" stroke-width="1.4"/><circle cx="12" cy="13.5" r="3.4" stroke="#5C6975" stroke-width="1.4"/></svg>
+                <span>Unggah Foto 3×4</span>
+              </div>
+              <img id="photoPreview" style="display:none">
+              <span class="photo-frame__tag">3×4</span>
+              <input type="file" accept="image/*" id="photoInput" style="display:none">
+            </label>
+            <div class="photo-actions"><button class="btn btn--ghost" id="clearForm" type="button">+ Siswa Baru</button></div>
+          </div>
+
+          <div class="stack-gap">
+            <div class="form-grid">
+              <div class="field"><label>Nama Lengkap</label><input type="text" id="fNama" placeholder="Cth: Bintang Pratama"></div>
+              <div class="field"><label>Nomor Punggung</label><input type="number" id="fPunggung" min="0" max="99" placeholder="10"></div>
+              <div class="field"><label>Tanggal Lahir</label><input type="date" id="fTtl"></div>
+              <div class="field"><label>Posisi</label>
+                <select id="fPosisi"><option value="Pemain">Pemain Lapangan</option><option value="Kiper">Kiper</option></select>
+              </div>
+              <div class="field"><label>Kelompok Usia / Kelas</label><input type="text" id="fKelompok" placeholder="Cth: KU 14"></div>
+              <div class="field"><label>Regional</label>
+                <select id="fRegional"><option value="Kota Surabaya">Kota Surabaya</option><option value="Kab. Sidoarjo">Kab. Sidoarjo</option></select>
+              </div>
+              <div class="field"><label>Tanggal Bergabung</label><input type="date" id="fJoin"></div>
+              <div class="field"><label>Nama Wali / Orang Tua</label><input type="text" id="fWali" placeholder="Cth: Bapak Herman"></div>
+              <div class="field"><label>Kontak Wali</label><input type="text" id="fKontak" placeholder="08xx-xxxx-xxxx"></div>
+              <div class="field"><label>Pelatih Pengampu</label><select id="fPelatih"></select></div>
+            </div>
+            <div class="field"><label>Catatan Tambahan</label><textarea id="fCatatan" placeholder="Riwayat cedera, kebiasaan, atau catatan lain (opsional)"></textarea></div>
+            <div><button class="btn" id="saveStudent" type="button">Simpan Data Siswa</button> <span class="save-msg" id="biodataMsg">Tersimpan</span></div>
+          </div>
+        </div>
+
+        <div class="roster-head">
+          <h3>Daftar Siswa</h3>
+          <div class="roster-head__right">
+            <select id="rosterFilter">
+              <option value="">Semua Regional</option>
+              <option value="Kota Surabaya">Kota Surabaya</option>
+              <option value="Kab. Sidoarjo">Kab. Sidoarjo</option>
+            </select>
+            <span class="badge" id="rosterCount">0 siswa</span>
+          </div>
+        </div>
+        <div class="roster" id="roster"></div>
+      </div>
+    </section>
+
+    <!-- ================= ADMIN: CETAK RAPOR ================= -->
+    <section class="slide" id="slide-cetak">
+      <div class="slide-inner">
+        <div class="section-head">
+          <p class="eyebrow">Admin — Dokumen</p>
+          <h2>Cetak Rapor</h2>
+          <p>Pilih siswa untuk melihat pratinjau rapor lengkap, lalu cetak atau simpan sebagai PDF melalui dialog cetak peramban.</p>
+        </div>
+
+        <div id="cetakEmpty" class="empty-state" style="display:none"><p>Belum ada siswa terdaftar.</p></div>
+
+        <div id="cetakContent" style="display:none">
+          <div class="cetak-select-row">
+            <div class="field"><label>Pilih Siswa</label><select id="cSelect"></select></div>
+            <button class="btn" id="cetakBtn" type="button">🖨 Cetak Rapor</button>
+          </div>
+
+          <div class="card">
+            <div class="cetak-preview">
+              <div class="cetak-photo" id="cPhoto"></div>
+              <div>
+                <dl class="cetak-bio" id="cBio"></dl>
+              </div>
+            </div>
+            <div class="cetak-section-title">Rekap Presensi</div>
+            <div class="stat-breakdown" id="cAttend"></div>
+            <div class="cetak-section-title">Penilaian</div>
+            <table class="nilai"><thead><tr><th>Aspek</th><th>Nilai</th></tr></thead><tbody id="cNilai"></tbody></table>
+            <p style="font-family:var(--mono);font-size:12px;margin-top:14px" id="cGrade"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PELATIH: PRESENSI ================= -->
+    <section class="slide" id="slide-presensi">
+      <div class="slide-inner">
+        <div class="section-head">
+          <p class="eyebrow">Pelatih — Kehadiran</p>
+          <h2>Presensi Latihan</h2>
+          <p>Catat kehadiran siswa yang Anda ampu pada setiap sesi latihan.</p>
+        </div>
+
+        <div id="presensiEmpty" class="empty-state" style="display:none"><p>Belum ada siswa yang ditugaskan kepada Anda. Hubungi admin untuk menugaskan siswa.</p></div>
+
+        <div id="presensiContent" style="display:none">
+          <div class="switch-bar">
+            <div class="switch-bar__avatar" id="pAvatar"></div>
+            <div class="switch-bar__meta"><b id="pName">–</b><span id="pMeta">–</span></div>
+            <select id="pSelect"></select>
+          </div>
+
+          <div class="presensi-layout">
+            <div class="card">
+              <div class="card__title">Catat Kehadiran</div>
+              <div class="stack-gap">
+                <div class="attend-row">
+                  <div class="field"><label>Tanggal</label><input type="date" id="aTanggal"></div>
+                  <div class="field"><label>Status</label>
+                    <select id="aStatus"><option value="Hadir">Hadir</option><option value="Izin">Izin</option><option value="Sakit">Sakit</option><option value="Alpa">Alpa</option></select>
+                  </div>
+                </div>
+                <div class="field"><label>Sesi / Materi Latihan</label><input type="text" id="aSesi" placeholder="Cth: Latihan Teknik Dasar"></div>
+                <button class="btn" id="addAttendance" type="button">+ Catat Kehadiran</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card__title">Rekap Kehadiran</div>
+              <div class="stat-ring-wrap">
+                <svg class="stat-ring" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#EFEBDD" stroke-width="10"/>
+                  <circle id="ringFg" cx="50" cy="50" r="42" fill="none" stroke="#0C93A0" stroke-width="10" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)"/>
+                  <text x="50" y="56" text-anchor="middle" font-family="Bebas Neue" font-size="26" id="ringText" fill="#16222D">0%</text>
+                </svg>
+                <div class="stat-breakdown" id="statBreakdown"></div>
+              </div>
+              <table class="log"><thead><tr><th>Tanggal</th><th>Sesi</th><th>Status</th><th></th></tr></thead><tbody id="attendLog"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PELATIH: PENILAIAN ================= -->
+    <section class="slide" id="slide-penilaian">
+      <div class="slide-inner">
+        <div class="section-head">
+          <p class="eyebrow">Pelatih — Evaluasi</p>
+          <h2>Sistem Penilaian</h2>
+          <p>Nilai teknik dasar dan kondisi fisik siswa. Untuk siswa dengan posisi Kiper, tersedia penilaian tambahan khusus penjaga gawang.</p>
+        </div>
+
+        <div id="assessEmpty" class="empty-state" style="display:none"><p>Belum ada siswa yang ditugaskan kepada Anda. Hubungi admin untuk menugaskan siswa.</p></div>
+
+        <div id="assessContent" style="display:none">
+          <div class="switch-bar">
+            <div class="switch-bar__avatar" id="vAvatar"></div>
+            <div class="switch-bar__meta"><b id="vName">–</b><span id="vMeta">–</span></div>
+            <span class="badge" id="vPosBadge">Pemain</span>
+            <select id="vSelect"></select>
+          </div>
+
+          <div class="assess-layout">
+            <div class="stack-gap">
+              <div class="card"><div class="card__title">Teknik &amp; Fisik Dasar</div><div id="coreMetrics"></div></div>
+              <div class="card gk-card" id="gkCard" style="display:none">
+                <div class="card__title">Penilaian Khusus Kiper</div>
+                <p class="gk-note">Aktif karena posisi siswa adalah Kiper</p>
+                <div id="gkMetrics"></div>
+              </div>
+            </div>
+            <div class="stack-gap">
+              <div class="card result-card">
+                <div class="result-label">Rata-rata Nilai</div>
+                <div class="result-grade" id="resultGrade">–</div>
+                <div class="result-avg" id="resultAvg">–</div>
+                <div class="radar-wrap"><svg id="radar" viewBox="0 0 260 240"></svg></div>
+                <div class="gk-mini" id="gkMini" style="display:none"></div>
+              </div>
+              <div class="card">
+                <div class="card__title">Catatan Pelatih</div>
+                <textarea id="vCatatan" placeholder="Catatan perkembangan, fokus latihan selanjutnya, dsb."></textarea>
+                <div class="save-row"><button class="btn" id="saveAssessment" type="button">Simpan Penilaian</button> <span class="save-msg" id="assessMsg">Tersimpan</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="print-sheet" id="printSheet"></div>
+
+
+<!-- Firebase SDK (compat build — works with plain <script> tags, no bundler needed) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- App scripts -->
+<script src="js/logo.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
