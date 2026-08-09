@@ -1,0 +1,63 @@
+rules_version = '2';
+
+// =====================================================================
+// Firestore Security Rules — Rapor Akademi Futsal (MIFA)
+//
+// Cara memasang: Firebase Console → Firestore Database → tab "Rules"
+// → hapus isi default → tempel seluruh isi file ini → klik "Publish".
+//
+// Model akses:
+//   - admin  : boleh baca/tulis semua koleksi (kelola pelatih & siswa,
+//              cetak rapor).
+//   - pelatih: boleh baca semua siswa (untuk keperluan tampilan), tapi
+//              hanya boleh menulis presensi & penilaian untuk siswa
+//              yang pelatihId-nya cocok dengan uid dirinya sendiri.
+//   - profil pengguna baru (dibuat lewat alur "Kelola Pelatih" admin)
+//     boleh membuat dokumen dirinya sendiri di /users, tapi role-nya
+//     dipaksa selalu "pelatih" — tidak bisa self-assign jadi admin.
+// =====================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isOwnerOf(pelatihId) {
+      return isSignedIn() && request.auth.uid == pelatihId;
+    }
+
+    // ---- Profil pengguna (admin & pelatih) ----
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == 'pelatih';
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- Biodata siswa ----
+    match /students/{studentId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+
+      // ---- Presensi (subkoleksi per siswa) ----
+      match /attendance/{entryId} {
+        allow read: if isSignedIn();
+        allow create, update, delete: if isAdmin() ||
+          isOwnerOf(get(/databases/$(database)/documents/students/$(studentId)).data.pelatihId);
+      }
+    }
+
+    // ---- Penilaian (satu dokumen per siswa) ----
+    match /assessments/{studentId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() ||
+        isOwnerOf(get(/databases/$(database)/documents/students/$(studentId)).data.pelatihId);
+    }
+  }
+}
