@@ -656,8 +656,8 @@ document.getElementById('cetakBtn').addEventListener('click', function(){
       '<div class="ps-section-title">Catatan Pelatih</div>'+
       '<p style="font-size:12px;line-height:1.6">'+(d.assessment.catatan ? d.assessment.catatan : '–')+'</p>'+
       '<div class="ps-sign">'+
-        '<div><div class="line">Coach<br>'+(d.coach?d.coach.nama:'–')+'</div></div>'+
         '<div><div class="line">Adv. M. Anas Amrullah, S.H., CBPIR., CGR.</div></div>'+
+        '<div><div class="line">Coach<br>'+(d.coach?d.coach.nama:'–')+'</div></div>'+
         '<div><div class="line">Orang Tua / Wali</div></div>'+
       '</div>';
     document.getElementById('printSheet').innerHTML = html;
