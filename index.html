@@ -201,6 +201,8 @@
             <div class="cetak-section-title">Penilaian</div>
             <table class="nilai"><thead><tr><th>Aspek</th><th>Nilai</th></tr></thead><tbody id="cNilai"></tbody></table>
             <p style="font-family:var(--mono);font-size:12px;margin-top:14px" id="cGrade"></p>
+            <div class="cetak-section-title">Turnamen yang Pernah Diikuti</div>
+            <table class="nilai"><thead><tr><th>Tahun</th><th>Turnamen</th><th>Hasil / Keterangan</th></tr></thead><tbody id="cTurnamen"></tbody></table>
           </div>
         </div>
       </div>
@@ -295,10 +297,22 @@
               <div class="card">
                 <div class="card__title">Catatan Pelatih</div>
                 <textarea id="vCatatan" placeholder="Catatan perkembangan, fokus latihan selanjutnya, dsb."></textarea>
-                <div class="save-row"><button class="btn" id="saveAssessment" type="button">Simpan Penilaian</button> <span class="save-msg" id="assessMsg">Tersimpan</span></div>
               </div>
             </div>
           </div>
+
+          <div class="card" style="margin-top:20px">
+            <div class="card__title">Turnamen yang Pernah Diikuti</div>
+            <div class="tournament-form">
+              <div class="field"><label>Nama Turnamen</label><input type="text" id="tNama" placeholder="Cth: Liga Futsal Pelajar Surabaya"></div>
+              <div class="field"><label>Tahun</label><input type="text" id="tTahun" placeholder="2024"></div>
+              <div class="field"><label>Hasil / Keterangan</label><input type="text" id="tKet" placeholder="Cth: Juara 2, babak 16 besar"></div>
+              <button class="btn btn--ghost" id="addTurnamen" type="button">+ Tambah</button>
+            </div>
+            <table class="log" style="margin-top:16px"><thead><tr><th>Tahun</th><th>Turnamen</th><th>Hasil / Keterangan</th><th></th></tr></thead><tbody id="turnamenLog"></tbody></table>
+          </div>
+
+          <div class="save-row"><button class="btn" id="saveAssessment" type="button">Simpan Penilaian</button> <span class="save-msg" id="assessMsg">Tersimpan</span></div>
         </div>
       </div>
     </section>
