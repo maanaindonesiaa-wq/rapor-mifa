@@ -623,6 +623,10 @@ function renderCetakPreview(studentId){
       return '<tr><td>'+m.label+'</td><td>'+(d.assessment[m.key]||0)+'</td></tr>';
     }).join('');
     document.getElementById('cGrade').innerHTML = 'Rata-rata: <b>'+d.avg+'/100</b> · Predikat: <b>'+d.grade.l+' — '+d.grade.t+'</b>';
+    var turnamen = Array.isArray(d.assessment.turnamen) ? d.assessment.turnamen : [];
+    document.getElementById('cTurnamen').innerHTML = turnamen.length ? turnamen.map(function(t){
+      return '<tr><td>'+(t.tahun||'–')+'</td><td>'+t.nama+'</td><td>'+(t.keterangan||'–')+'</td></tr>';
+    }).join('') : '<tr><td colspan="3" class="log-empty">Belum ada turnamen yang dicatat.</td></tr>';
   }).catch(function(err){ toast('Gagal memuat pratinjau rapor: '+mapAuthError(err), true); });
 }
 
@@ -633,6 +637,7 @@ document.getElementById('cetakBtn').addEventListener('click', function(){
   studentSummary(studentId).then(function(d){
     if(!d) return;
     var s=d.student;
+    var turnamen = Array.isArray(d.assessment.turnamen) ? d.assessment.turnamen : [];
     var html =
       '<div class="ps-head"><div><h1>RAPOR SISWA</h1><p>'+CONFIG.academyName+' · Regional '+(s.regional||'–')+' · Dicetak '+new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})+'</p></div></div>'+
       '<div class="ps-body">'+
@@ -653,6 +658,12 @@ document.getElementById('cetakBtn').addEventListener('click', function(){
         d.metrics.map(function(m){ return '<tr><td>'+m.label+'</td><td>'+(d.assessment[m.key]||0)+'</td></tr>'; }).join('')+
       '</tbody></table>'+
       '<p style="margin-top:14px;font-family:\'IBM Plex Mono\',monospace;font-size:12px">Rata-rata Nilai: <span class="ps-grade">'+d.grade.l+'</span> ('+d.avg+'/100 — '+d.grade.t+')</p>'+
+      '<div class="ps-section-title">Turnamen yang Pernah Diikuti</div>'+
+      (turnamen.length ?
+        '<table class="ps-table"><thead><tr><th>Tahun</th><th>Turnamen</th><th>Hasil / Keterangan</th></tr></thead><tbody>'+
+          turnamen.map(function(t){ return '<tr><td>'+(t.tahun||'–')+'</td><td>'+t.nama+'</td><td>'+(t.keterangan||'–')+'</td></tr>'; }).join('')+
+        '</tbody></table>'
+        : '<p style="font-size:12px;color:#5C6975">Belum ada turnamen yang dicatat.</p>')+
       '<div class="ps-section-title">Catatan Pelatih</div>'+
       '<p style="font-size:12px;line-height:1.6">'+(d.assessment.catatan ? d.assessment.catatan : '–')+'</p>'+
       '<div class="ps-sign">'+
@@ -767,6 +778,8 @@ function metricRow(m, value){
 }
 function renderAssessment(student){
   document.getElementById('coreMetrics').innerHTML = CORE_METRICS.map(function(m){ return metricRow(m, 50); }).join('');
+  turnamenList = [];
+  renderTurnamenList();
   db.collection('assessments').doc(student.id).get().then(function(doc){
     var asm = doc.exists ? doc.data() : {};
     var isGk = student.posisi==='Kiper';
@@ -774,10 +787,39 @@ function renderAssessment(student){
     document.getElementById('gkCard').style.display = isGk?'block':'none';
     if(isGk){ document.getElementById('gkMetrics').innerHTML = GK_METRICS.map(function(m){ return metricRow(m, asm[m.key]!=null?asm[m.key]:50); }).join(''); }
     document.getElementById('vCatatan').value = asm.catatan || '';
+    turnamenList = Array.isArray(asm.turnamen) ? asm.turnamen.slice() : [];
+    renderTurnamenList();
     bindMetricInputs();
     updateResult(student);
   }).catch(function(err){ toast('Gagal memuat penilaian: '+mapAuthError(err), true); });
 }
+
+/* ---- Turnamen (isi manual) ---- */
+var turnamenList = [];
+function renderTurnamenList(){
+  var log = document.getElementById('turnamenLog');
+  if(!turnamenList.length){ log.innerHTML='<tr><td colspan="4" class="log-empty">Belum ada turnamen yang dicatat.</td></tr>'; return; }
+  log.innerHTML = turnamenList.map(function(t, i){
+    return '<tr><td>'+(t.tahun||'–')+'</td><td>'+t.nama+'</td><td>'+(t.keterangan||'–')+'</td>'+
+      '<td><button class="icon-btn row-del" data-idx="'+i+'" title="Hapus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6"/></svg></button></td></tr>';
+  }).join('');
+  log.querySelectorAll('[data-idx]').forEach(function(b){
+    b.addEventListener('click', function(){
+      turnamenList.splice(parseInt(b.getAttribute('data-idx'),10), 1);
+      renderTurnamenList();
+    });
+  });
+}
+document.getElementById('addTurnamen').addEventListener('click', function(){
+  var nama = document.getElementById('tNama').value.trim();
+  var tahun = document.getElementById('tTahun').value.trim();
+  var ket = document.getElementById('tKet').value.trim();
+  if(!nama){ document.getElementById('tNama').focus(); return; }
+  turnamenList.push({ nama:nama, tahun:tahun, keterangan:ket });
+  document.getElementById('tNama').value=''; document.getElementById('tTahun').value=''; document.getElementById('tKet').value='';
+  renderTurnamenList();
+});
+
 function bindMetricInputs(){
   document.querySelectorAll('#coreMetrics input[type=range], #gkMetrics input[type=range]').forEach(function(inp){
     inp.addEventListener('input', function(){
@@ -861,6 +903,7 @@ document.getElementById('saveAssessment').addEventListener('click', function(){
   var record={};
   CORE_METRICS.concat(GK_METRICS).forEach(function(m){ record[m.key]= vals[m.key]!=null ? vals[m.key] : 0; });
   record.catatan = document.getElementById('vCatatan').value.trim();
+  record.turnamen = turnamenList;
   record.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
   record.updatedBy = currentUser.uid;
   var btn = document.getElementById('saveAssessment');
