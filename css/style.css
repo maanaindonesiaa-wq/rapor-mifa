@@ -360,9 +360,9 @@ table.nilai td{ padding:8px 8px; font-size:13px; border-bottom:1px solid var(--l
   table.ps-table th{ text-align:left; font-family:'IBM Plex Mono',monospace; font-size:9px; text-transform:uppercase; color:#5C6975; padding:5px 6px; border-bottom:1px solid #999; }
   table.ps-table td{ padding:5px 6px; border-bottom:1px solid #D9DEE1; }
   .ps-grade{ font-family:'Bebas Neue',sans-serif; font-size:44px; color:#0C93A0; }
-  .ps-sign{ display:flex; justify-content:space-between; margin-top:50px; }
-  .ps-sign div{ text-align:center; width:30%; font-size:11px; }
-  .ps-sign .line{ margin-top:50px; border-top:1px solid #16222D; padding-top:4px; font-family:'IBM Plex Mono',monospace; font-size:9px; }
+  .ps-sign{ display:flex; justify-content:space-between; gap:24px; margin-top:50px; }
+  .ps-sign div{ text-align:center; flex:0 0 auto; min-width:110px; font-size:11px; }
+  .ps-sign .line{ margin-top:50px; border-top:1px solid #16222D; padding-top:4px; font-family:'IBM Plex Mono',monospace; font-size:9px; white-space:nowrap; }
 }
 
 /* misc */
